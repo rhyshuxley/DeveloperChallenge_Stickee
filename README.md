@@ -1,1 +1,0 @@
-# DeveloperChallenge_Stickee
