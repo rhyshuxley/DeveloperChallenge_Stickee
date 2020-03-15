@@ -33,16 +33,23 @@ class Widget
     {
         // array of pack sizes to fulfill order
         $packsToSend = [];
-        
-        // if order is below the second pack size
-        if($noOfWidgets <= self::packSizes[1]){
-            // if order is below the first pack size
-            if($noOfWidgets <= self::packSizes[0]){
-                // send out first pack size
-                $packsToSend[] = self::packSizes[0];
-            }else{
-                // else send out second pack size
-                $packsToSend[] = self::packSizes[1];
+
+        // if order is less than any of the pack sizes
+        if($noOfWidgets <= self::packSizes[$this->packIndex]){
+            // set index
+            $index = 0;
+
+            // whilst the index is below or equal number of packs and order isn't empty
+            while($index <= $this->packIndex && $noOfWidgets > 0){
+                // if order is below the pack size
+                if($noOfWidgets <= self::packSizes[$index]){
+                    // send out pack size
+                    $packsToSend[] = self::packSizes[$index];
+                    // remove pack size
+                    $noOfWidgets = $noOfWidgets - self::packSizes[$this->packIndex];
+                }
+                // increment index
+                $index++;
             }
         }else{
             // while we have widgets to supply
@@ -72,29 +79,27 @@ class Widget
     // formats and prints order
     private function printOrder($packsToSend)
     {
-        // set up variables
-        $packsForPrint = [];
-        $prevPack = "";
-
+        // get unique pack sizes
+        $printPacks = array_map("unserialize", array_unique(array_map("serialize", $packsToSend)));
+        // get count of each pack
+        $count = array_count_values(array_map("serialize", $packsToSend));
+    
         // for each pack
-        foreach($packsToSend as $pack){
+        foreach($printPacks as $pack){
             // create print pack
             $printPack = new PrintPack;
-            // add size and quantity
+            // add size
             $printPack->size = $pack;
-            $printPack->quantity = 1;
-            
-            // if pack size is the same as previous pack
-            if($pack == $prevPack->size){
-                // update quantity
-                $prevPack->quantity++;
-            }else{
-                // otherwise, add print pack to formatted order
-                $packsForPrint[] = $printPack;
+
+            // add quantity
+            foreach($count as $key => $value) {
+                if(unserialize($key) == $pack) {
+                    $printPack->quantity = $value;
+                }
             }
 
-            // set previous pack
-            $prevPack = $printPack;
+            // add pack to order
+            $packsForPrint[] = $printPack;
         }
 
         // print order summary
@@ -114,4 +119,6 @@ $widget->processOrder(501);
 $widget->processOrder(12001);
 $widget->processOrder(876);
 $widget->processOrder(4532);
+$widget->processOrder(22001);
+
 ?>
