@@ -36,43 +36,55 @@ class Widget
 
         // if order is less than any of the pack sizes
         if($noOfWidgets <= self::packSizes[$this->packIndex]){
-            // set index
-            $index = 0;
-
-            // whilst the index is below or equal number of packs and order isn't empty
-            while($index <= $this->packIndex && $noOfWidgets > 0){
-                // if order is below the pack size
-                if($noOfWidgets <= self::packSizes[$index]){
-                    // send out pack size
-                    $packsToSend[] = self::packSizes[$index];
-                    // remove pack size
-                    $noOfWidgets = $noOfWidgets - self::packSizes[$this->packIndex];
-                }
-                // increment index
-                $index++;
-            }
+            $packsToSend = $this->getSinglePackSize($noOfWidgets);
         }else{
-            // while we have widgets to supply
-            while($noOfWidgets > 0){ 
-                // while widgets to supply is lower than current pack size
-                while($noOfWidgets < self::packSizes[$this->packIndex]){
-                    // go to next pack size down
-                    $this->packIndex--;
-                }
-                // if we go past lowest pack size
-                if($this->packIndex < 0){
-                    // make sure we stay on lowest pack size
-                    $this->packIndex = 0;
-                }
-
-                // add pack to order
-                $packsToSend[] = self::packSizes[$this->packIndex];
-                // remove packs added to order from number of widgets to supply
-                $noOfWidgets = $noOfWidgets - self::packSizes[$this->packIndex];
-            }
+            $packsToSend = $this->getMultiplePackSizes($noOfWidgets);
         }
 
         // return full order
+        return $packsToSend;
+    }
+
+    private function getSinglePackSize($noOfWidgets){
+        // set index
+        $index = 0;
+
+        // whilst the index is below or equal number of packs and order isn't empty
+        while($index <= $this->packIndex && $noOfWidgets > 0){
+            // if order is below the pack size
+            if($noOfWidgets <= self::packSizes[$index]){
+                // send out pack size
+                $packsToSend[] = self::packSizes[$index];
+                // remove pack size
+                $noOfWidgets = $noOfWidgets - self::packSizes[$this->packIndex];
+            }
+            // increment index
+            $index++;
+        }
+
+        return $packsToSend;
+    }
+
+    private function getMultiplePackSizes($noOfWidgets){
+        // while we have widgets to supply
+        while($noOfWidgets > 0){ 
+            // while widgets to supply is lower than current pack size
+            while($noOfWidgets < self::packSizes[$this->packIndex]){
+                // go to next pack size down
+                $this->packIndex--;
+            }
+            // if we go past lowest pack size
+            if($this->packIndex < 0){
+                // make sure we stay on lowest pack size
+                $this->packIndex = 0;
+            }
+
+            // add pack to order
+            $packsToSend[] = self::packSizes[$this->packIndex];
+            // remove packs added to order from number of widgets to supply
+            $noOfWidgets = $noOfWidgets - self::packSizes[$this->packIndex];
+        }
+
         return $packsToSend;
     }
 
